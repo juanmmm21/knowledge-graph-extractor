@@ -1,13 +1,13 @@
 # Knowledge Graph Extractor
 
-Pipeline para extraer grafos de conocimiento estructurados (Knowledge Graphs) a partir de texto no estructurado utilizando Modelos de Lenguaje (LLMs) y tecnicas de resolucion de entidades. Este subproyecto permite identificar conceptos clave (nodos) y sus interconexiones (relaciones) para alimentar arquitecturas avanzadas de recuperacion de informacion como GraphRAG.
+Pipeline for extracting structured knowledge graphs from unstructured text using Language Models (LLMs) and entity resolution techniques. This subproject identifies key concepts (nodes) and their interconnections (relations) to feed advanced information retrieval architectures such as GraphRAG.
 
-## Arquitectura y Fundamentos Tecnicos
+## Architecture and Technical Foundations
 
-El procesamiento del pipeline sigue cuatro etapas principales:
+The pipeline processing follows four main stages:
 
-### 1. Extraccion Estructurada con Pydantic
-El extractor define un esquema estricto utilizando Pydantic para validar y estructurar las respuestas JSON provenientes del LLM. Los modelos definidos son:
+### 1. Structured Extraction with Pydantic
+The extractor defines a strict schema using Pydantic to validate and structure the JSON responses coming from the LLM. The defined models are:
 
 ```python
 class Entity(BaseModel):
@@ -26,16 +26,16 @@ class KnowledgeGraph(BaseModel):
     relations: List[Relation]
 ```
 
-### 2. Resolucion de Entidades (Entity Resolution)
-La informacion del texto libre suele presentar redundancias (ej. "Albert Einstein", "Einstein" o "einstein"). La clase `KnowledgeGraphStore` procesa cada entidad nueva y aplica tecnicas deterministicas para unificar nodos:
-*   **Normalizacion de Nombres:** Se limpian espacios marginales y se evalua en minusculas para comparacion de claves de diccionario.
-*   **Fusion Semantica (Merging):**
-    *   Se preserva el nombre con mejor capitalizacion (la cadena mas larga).
-    *   Se promueven categorias genericas a especificas (por ejemplo, si una entidad previa `CONCEPT` coincide con una nueva declarada `PERSON`).
-    *   Se realiza una actualizacion incremental y sin duplicados de las descripciones historicas.
+### 2. Entity Resolution
+Free-text information often presents redundancies (e.g. "Albert Einstein", "Einstein" or "einstein"). The `KnowledgeGraphStore` class processes each new entity and applies deterministic techniques to unify nodes:
+*   **Name Normalization:** Leading/trailing spaces are trimmed and the name is evaluated in lowercase for dictionary key comparison.
+*   **Semantic Merging:**
+    *   The name with the best capitalization (the longest string) is preserved.
+    *   Generic categories are promoted to specific ones (for example, if a previous `CONCEPT` entity matches a newly declared `PERSON`).
+    *   An incremental, duplicate-free update of historical descriptions is performed.
 
-### 3. Exportacion Segura a Bases de Datos (Cypher)
-Para persistir el grafo en Neo4j, se generan consultas Cypher escapando comillas simples y caracteres de escape de forma segura mediante comandos `MERGE`:
+### 3. Safe Export to Databases (Cypher)
+To persist the graph in Neo4j, Cypher queries are generated, safely escaping single quotes and escape characters via `MERGE` commands:
 
 ```cypher
 MERGE (s:Entity {name: 'Albert Einstein'})
@@ -50,41 +50,41 @@ MERGE (s)-[r:desarrollo]->(t)
 ON CREATE SET r.description = 'Formulo las ecuaciones de campo en 1915.'
 ```
 
-### 4. Visualizacion Dinamica en D3.js
-El modulo visualizador exporta un archivo HTML auto-contenido que carga D3.js desde un CDN y renderiza el grafo mediante un grafo dirigido con simulacion de fuerzas fisicas:
-*   **Fuerza de Carga (`forceManyBody`):** Controla la repulsion entre nodos para evitar solapamientos ($F_{\text{rep}} \propto -1/d^2$).
-*   **Fuerza de Enlace (`forceLink`):** Mantiene unidos los nodos conectados segun la distancia del enlace.
-*   **Fuerza de Colision (`forceCollide`):** Define un radio fisico para cada circulo de nodo en la pantalla para mayor claridad visual.
-*   **Fuerza de Centrado (`forceCenter`):** Mantiene la masa del grafo en el centro del viewport del canvas SVG.
+### 4. Dynamic Visualization in D3.js
+The visualizer module exports a self-contained HTML file that loads D3.js from a CDN and renders the graph as a directed graph with physics-based force simulation:
+*   **Charge Force (`forceManyBody`):** Controls repulsion between nodes to avoid overlap ($F_{\text{rep}} \propto -1/d^2$).
+*   **Link Force (`forceLink`):** Keeps connected nodes together according to link distance.
+*   **Collision Force (`forceCollide`):** Defines a physical radius for each node circle on screen for greater visual clarity.
+*   **Centering Force (`forceCenter`):** Keeps the graph's mass centered in the SVG canvas viewport.
 
-## Requisitos de Instalacion
+## Installation Requirements
 
-*   Python 3.10 o superior
+*   Python 3.10 or higher
 *   Pydantic
-*   Google-Genai (opcional, para extraccion con Gemini)
-*   Jinja2 (para renderizar la plantilla HTML)
+*   Google-Genai (optional, for extraction with Gemini)
+*   Jinja2 (to render the HTML template)
 
-Para instalar los requisitos, ejecute:
+To install the requirements, run:
 ```bash
 pip install -r requirements.txt
 ```
 
-## Guia de Ejecucion y Verificacion
+## Execution and Verification Guide
 
-### 1. Ejecutar Pruebas Unitarias
-Comprueba la fusion de metadatos redundantes, integridad de escapes de Cypher y resiliencia del parser:
+### 1. Run Unit Tests
+Checks the merging of redundant metadata, Cypher escape integrity, and parser resilience:
 ```bash
 python3 -m unittest test_extractor.py
 ```
 
-### 2. Ejecutar Demostración
+### 2. Run Demo
 ```bash
 python3 example.py
 ```
-El script utilizara el segmentador `SemanticChunker` para trocear un corpus historico, procesara los fragmentos extrayendo subgrafos locales, unificara las entidades resolviendo duplicaciones, imprimira las sentencias Cypher en terminal y escribira el visualizador en `graph_output.html`.
+The script will use the `SemanticChunker` segmenter to chunk a historical corpus, process the fragments extracting local subgraphs, unify entities resolving duplicates, print the Cypher statements to the terminal, and write the visualizer to `graph_output.html`.
 
-## Conectividad en el Ecosistema ai-core-infra
+## Connectivity within the ai-core-infra Ecosystem
 
-El modulo `knowledge-graph-extractor` es crucial para arquitecturas GraphRAG:
-*   Consume a [semantic-chunking-engine](https://github.com/juanmmm21/semantic-chunking-engine) para fragmentar la entrada de forma logica.
-*   En la aplicacion final [nexus-second-brain](https://github.com/juanmmm21/nexus-second-brain), este motor procesa las notas del usuario en tiempo real para mantener actualizado su mapa mental de conceptos en la interfaz web de Obsidian-style.
+The `knowledge-graph-extractor` module is crucial for GraphRAG architectures:
+*   It consumes [semantic-chunking-engine](https://github.com/juanmmm21/semantic-chunking-engine) to logically fragment the input.
+*   In the final application [nexus-second-brain](https://github.com/juanmmm21/nexus-second-brain), this engine processes the user's notes in real time to keep their concept mind map up to date in the Obsidian-style web interface.
