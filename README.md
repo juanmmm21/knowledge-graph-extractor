@@ -11,15 +11,15 @@ The extractor defines a strict schema using Pydantic to validate and structure t
 
 ```python
 class Entity(BaseModel):
-    name: str = Field(..., description="Nombre unico de la entidad (normalizado)")
-    type: str = Field(..., description="Categoria (PERSON, ORGANIZATION, LOCATION, CONCEPT, EVENT)")
-    description: str = Field(..., description="Resumen descriptivo del contexto o rol")
+    name: str = Field(..., description="Unique name of the entity (normalized)")
+    type: str = Field(..., description="Category (PERSON, ORGANIZATION, LOCATION, CONCEPT, EVENT)")
+    description: str = Field(..., description="Descriptive summary of the context or role")
 
 class Relation(BaseModel):
-    source: str = Field(..., description="Nombre de la entidad origen")
-    target: str = Field(..., description="Nombre de la entidad destino")
-    type: str = Field(..., description="Verbo o relacion logica en minusculas (ej. trabaja_en)")
-    description: str = Field(..., description="Detalle contextual de la relacion")
+    source: str = Field(..., description="Name of the source entity")
+    target: str = Field(..., description="Name of the target entity")
+    type: str = Field(..., description="Verb or logical relation in lowercase (e.g. works_at)")
+    description: str = Field(..., description="Contextual detail of the relation")
 
 class KnowledgeGraph(BaseModel):
     entities: List[Entity]
@@ -39,15 +39,15 @@ To persist the graph in Neo4j, Cypher queries are generated, safely escaping sin
 
 ```cypher
 MERGE (s:Entity {name: 'Albert Einstein'})
-ON CREATE SET s.type = 'PERSON', s.description = 'Fisico aleman creador de la relatividad.'
-ON MATCH SET s.description = s.description + ' ' + 'Fisico aleman creador de la relatividad.'
+ON CREATE SET s.type = 'PERSON', s.description = 'German physicist who created relativity.'
+ON MATCH SET s.description = s.description + ' ' + 'German physicist who created relativity.'
 
-MERGE (t:Entity {name: 'Relatividad General'})
-ON CREATE SET t.type = 'CONCEPT', t.description = 'Teoria geometrica de la gravitacion.'
-ON MATCH SET t.description = t.description + ' ' + 'Teoria geometrica de la gravitacion.'
+MERGE (t:Entity {name: 'General Relativity'})
+ON CREATE SET t.type = 'CONCEPT', t.description = 'Geometric theory of gravitation.'
+ON MATCH SET t.description = t.description + ' ' + 'Geometric theory of gravitation.'
 
-MERGE (s)-[r:desarrollo]->(t)
-ON CREATE SET r.description = 'Formulo las ecuaciones de campo en 1915.'
+MERGE (s)-[r:developed]->(t)
+ON CREATE SET r.description = 'Formulated the field equations in 1915.'
 ```
 
 ### 4. Dynamic Visualization in D3.js
