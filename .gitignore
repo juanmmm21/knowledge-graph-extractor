@@ -13,3 +13,8 @@ env/
 # Output HTML visualizations
 *.html
 !README.md
+
+# Packaging
+build/
+dist/
+*.egg-info/

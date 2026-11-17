@@ -57,6 +57,30 @@ The visualizer module exports a self-contained HTML file that loads D3.js from a
 *   **Collision Force (`forceCollide`):** Defines a physical radius for each node circle on screen for greater visual clarity.
 *   **Centering Force (`forceCenter`):** Keeps the graph's mass centered in the SVG canvas viewport.
 
+## Using it as a package
+
+Since `0.1.0` the code lives in the `knowledge_graph_extractor` package and the repository is
+pip-installable, so other projects can depend on it instead of copying files
+or editing `sys.path`:
+
+```bash
+pip install "knowledge-graph-extractor @ git+https://github.com/juanmmm21/knowledge-graph-extractor.git@v0.1.0"
+```
+
+```python
+from knowledge_graph_extractor import Entity, Relation
+```
+
+Optional extras: `[gemini]` (google-generativeai>=0.3).
+
+The old top-level modules are kept as thin re-exports, so scripts that add
+this folder to `sys.path` keep working. This component imports no other
+ai-core component: they are combined in the `aicore` SDK of
+[ai-core-infra-hub](https://github.com/juanmmm21/ai-core-infra-hub), which
+passes collaborators (vector stores, encoders, tokenizers) in by injection.
+
+Development: `pip install -e ".[dev]"`, then `pytest` and `ruff check .`.
+
 ## Installation Requirements
 
 *   Python 3.10 or higher

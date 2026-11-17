@@ -4,8 +4,8 @@ import shutil
 import os
 import json
 
-from extractor import Entity, Relation, KnowledgeGraph, KnowledgeGraphExtractor
-from graph import KnowledgeGraphStore
+from knowledge_graph_extractor.extractor import Entity, Relation, KnowledgeGraph, KnowledgeGraphExtractor
+from knowledge_graph_extractor.graph import KnowledgeGraphStore
 
 
 class TestKnowledgeGraphExtractor(unittest.TestCase):
