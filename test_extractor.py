@@ -2,7 +2,6 @@ import unittest
 import tempfile
 import shutil
 import os
-import json
 
 from knowledge_graph_extractor.extractor import Entity, Relation, KnowledgeGraph, KnowledgeGraphExtractor
 from knowledge_graph_extractor.graph import KnowledgeGraphStore

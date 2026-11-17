@@ -1,7 +1,7 @@
 import json
 import os
 import logging
-from typing import Dict, List, Set, Union
+from typing import Dict, List
 from .extractor import Entity, Relation, KnowledgeGraph
 
 logger = logging.getLogger(__name__)

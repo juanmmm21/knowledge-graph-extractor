@@ -1,7 +1,6 @@
 import os
 import json
 import logging
-from typing import Dict, Any
 from .graph import KnowledgeGraphStore
 
 logger = logging.getLogger(__name__)
@@ -22,7 +21,6 @@ class GraphVisualizer:
         Produce el codigo HTML/CSS/JS completo necesario para renderizar el grafo.
         """
         # Convertimos los datos del almacen a JSON apto para D3.js
-        graph_dict = self.store.to_dict()
         
         # En D3.js force simulation, los links requieren 'source' y 'target' que correspondan
         # con los IDs de los nodos. En nuestro caso, los IDs de los nodos seran los nombres de las entidades.
