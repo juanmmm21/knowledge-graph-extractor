@@ -1,5 +1,4 @@
 import os
-import sys
 import logging
 from typing import List
 
@@ -11,22 +10,10 @@ from visualizer import GraphVisualizer
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
 
-# Intentamos importar dinámicamente el semantic-chunking-engine de los proyectos vecinos (Interlinking)
-sys.path.append(os.path.abspath("../semantic-chunking-engine"))
+# La segmentacion semantica (semantic-chunking-engine) se combina con este extractor en el SDK
+# `aicore` del hub: los componentes del ecosistema no se importan entre si. Aqui, por parrafos.
 CHUNKER_AVAILABLE = False
 chunker = None
-
-try:
-    from chunker import SemanticChunker
-    from embedding_provider import MockEmbeddingProvider
-    
-    # Inicializamos el chunker semántico usando el proveedor Mock local para no requerir descargas pesadas
-    provider = MockEmbeddingProvider()
-    chunker = SemanticChunker(embedding_provider=provider, max_tokens=150)
-    CHUNKER_AVAILABLE = True
-    logger.info("Interlinking exitoso: cargado SemanticChunker desde 'semantic-chunking-engine'.")
-except (ImportError, ModuleNotFoundError):
-    logger.info("SemanticChunker no detectado en directorios hermanos. Fallback a segmentación por párrafos.")
 
 
 def main() -> None:
